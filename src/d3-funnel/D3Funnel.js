@@ -52,8 +52,17 @@ class D3Funnel {
             enabled: false,
             format: '{l}: {f}',
         },
+        customTooltip: {
+            enabled: false,
+        },
         events: {
             click: {
+                block: null,
+            },
+            mouseMove: {
+                block: null,
+            },
+            mouseOut: {
                 block: null,
             },
         },
@@ -160,7 +169,10 @@ class D3Funnel {
             minHeight: settings.block.minHeight,
             label: settings.label,
             tooltip: settings.tooltip,
+            customTooltip: settings.customTooltip,
             onBlockClick: settings.events.click.block,
+            onBlockMouseMove: settings.events.mouseMove.block,
+            onBlockMouseOut: settings.events.mouseOut.block,
         };
 
         this.setBlocks(data);
@@ -349,6 +361,9 @@ class D3Funnel {
                     enabled: block.enabled,
                     formatted: this.formatter.format(block, this.tooltipFormatter),
                 },
+                customTooltip: {
+                    enabled: block.enabled,
+                }
             };
         });
     }
@@ -845,6 +860,19 @@ class D3Funnel {
                         'pointer-events: none',
                     ];
                     this.tooltip.setAttribute('style', styles.join(';'));
+                });
+            });
+        }
+
+        if (this.settings.customTooltip.enabled) {
+            [path, overlayPath].forEach((target) => {
+                if (!target) {
+                    return;
+                }
+
+                target.node().addEventListener('mouseout', this.settings.onBlockMouseOut);
+                target.node().addEventListener('mousemove', (e) => {
+                    this.settings.onBlockMouseMove(e, block);
                 });
             });
         }

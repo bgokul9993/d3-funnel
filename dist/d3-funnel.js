@@ -255,7 +255,10 @@ function () {
         minHeight: settings.block.minHeight,
         label: settings.label,
         tooltip: settings.tooltip,
-        onBlockClick: settings.events.click.block
+        customTooltip: settings.customTooltip,
+        onBlockClick: settings.events.click.block,
+        onBlockMouseMove: settings.events.mouseMove.block,
+        onBlockMouseOut: settings.events.mouseOut.block
       };
       this.setBlocks(data);
     }
@@ -436,6 +439,9 @@ function () {
           tooltip: {
             enabled: block.enabled,
             formatted: _this.formatter.format(block, _this.tooltipFormatter)
+          },
+          customTooltip: {
+            enabled: block.enabled
           }
         };
       });
@@ -885,6 +891,19 @@ function () {
         });
       }
 
+      if (this.settings.customTooltip.enabled) {
+        [path, overlayPath].forEach(function (target) {
+          if (!target) {
+            return;
+          }
+
+          target.node().addEventListener('mouseout', _this4.settings.onBlockMouseOut);
+          target.node().addEventListener('mousemove', function (e) {
+            _this4.settings.onBlockMouseMove(e, block);
+          });
+        });
+      }
+
       if (this.settings.label.enabled && block.label.enabled) {
         this.addBlockLabel(group, index);
       }
@@ -1187,8 +1206,17 @@ _defineProperty(D3Funnel, "defaults", {
     enabled: false,
     format: '{l}: {f}'
   },
+  customTooltip: {
+    enabled: false
+  },
   events: {
     click: {
+      block: null
+    },
+    mouseMove: {
+      block: null
+    },
+    mouseOut: {
       block: null
     }
   }
